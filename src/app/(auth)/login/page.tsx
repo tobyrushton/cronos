@@ -1,12 +1,18 @@
 'use client'
 
-import { FC } from 'react'
+import { FC, useActionState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
+import { logInWithCredentials, MakeAction } from '../../_actions'
 
 const Login: FC = () => {
+    const [_, dispatch] = useActionState(
+        logInWithCredentials as MakeAction<typeof logInWithCredentials>,
+        undefined
+    )
+
     return (
         <div className="m-auto max-w-sm space-y-6">
             <div className="space-y-2 text-center">
@@ -15,14 +21,24 @@ const Login: FC = () => {
                     Enter your credentials to access your account
                 </p>
             </div>
-            <div className="space-y-4">
+            <form className="space-y-4" action={dispatch}>
                 <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" placeholder="m@example.com" required />
+                    <Input
+                        id="email"
+                        name="email"
+                        placeholder="m@example.com"
+                        required
+                    />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
-                    <Input id="password" type="password" required />
+                    <Input
+                        id="password"
+                        name="password"
+                        type="password"
+                        required
+                    />
                 </div>
                 <Button type="submit" className="w-full">
                     Login
@@ -41,7 +57,7 @@ const Login: FC = () => {
                         Sign Up
                     </Link>
                 </div>
-            </div>
+            </form>
         </div>
     )
 }
