@@ -13,6 +13,10 @@ export const logInSchema = z.object({
     password: z.string(),
 })
 
+export const signUpSchema = logInSchema.extend({
+    name: z.string().max(255),
+})
+
 /*
     temporary fix to allow useActionState to work with trpc
     from https://github.com/juliusmarminge/trellix-trpc/blob/94d8febef4ddb35cd823e99c6722258e3e9c65b2/src/app/_actions.ts
@@ -59,5 +63,29 @@ export const logInWithCredentials = publicAction
             sessionCookie.attributes
         )
 
-        return redirect('/')
+        return redirect('/calendar')
+    })
+
+export const signUpWithCredentials = publicAction
+    .input(signUpSchema)
+    .mutation(async ({ input }) => {
+        const hashedPassword = await new Argon2id().hash(input.password)
+
+        const user = await client.user.create({
+            data: {
+                email: input.email,
+                name: input.name,
+                hashedPassword,
+            },
+        })
+
+        const session = await lucia.createSession(user.id, {})
+        const sessionCookie = lucia.createSessionCookie(session.id)
+        cookies().set(
+            sessionCookie.name,
+            sessionCookie.value,
+            sessionCookie.attributes
+        )
+
+        return redirect('/calendar')
     })
