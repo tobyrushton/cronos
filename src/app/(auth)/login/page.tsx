@@ -2,13 +2,13 @@
 
 import { FC, useActionState } from 'react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { ButtonWithLoading } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { logInWithCredentials, MakeAction } from '../../_actions'
 
 const Login: FC = () => {
-    const [_, dispatch] = useActionState(
+    const [_, dispatch, isPending] = useActionState(
         logInWithCredentials as MakeAction<typeof logInWithCredentials>,
         undefined
     )
@@ -40,9 +40,13 @@ const Login: FC = () => {
                         required
                     />
                 </div>
-                <Button type="submit" className="w-full">
+                <ButtonWithLoading
+                    type="submit"
+                    className="w-full"
+                    loading={isPending}
+                >
                     Login
-                </Button>
+                </ButtonWithLoading>
                 <div className="flex justify-between text-sm">
                     <Link
                         href="/reset"

@@ -1,17 +1,29 @@
 'use client'
 
-import { MakeAction, signUpWithCredentials } from '@/app/_actions'
-import { Button } from '@/components/ui/button'
+import { signUpWithCredentials } from '@/app/_actions'
+import { ButtonWithLoading } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { TRPCError } from '@trpc/server'
 import Link from 'next/link'
 import { FC, useActionState } from 'react'
 
 const SignUp: FC = () => {
-    const [_, dispatch] = useActionState(
-        signUpWithCredentials as MakeAction<typeof signUpWithCredentials>,
-        undefined
-    )
+    const [_, dispatch, isPending] = useActionState<
+        TRPCError | undefined,
+        FormData
+    >(async (__, formData: FormData): Promise<TRPCError | undefined> => {
+        try {
+            await signUpWithCredentials({
+                name: formData.get('name') as string,
+                email: formData.get('email') as string,
+                password: formData.get('password') as string,
+            })
+        } catch (e) {
+            return e as TRPCError
+        }
+        return undefined
+    }, undefined)
 
     return (
         <>
@@ -50,9 +62,13 @@ const SignUp: FC = () => {
                         required
                     />
                 </div>
-                <Button type="submit" className="w-full">
+                <ButtonWithLoading
+                    type="submit"
+                    className="w-full"
+                    loading={isPending}
+                >
                     Sign Up
-                </Button>
+                </ButtonWithLoading>
                 <Link
                     href="/login"
                     className="text-sm justify-center flex w-full underline underline-offset-2"

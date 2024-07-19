@@ -11,11 +11,7 @@ interface Meta {
 export const t = initTRPC.meta<Meta>().create()
 
 const serverActionProcedure = t.procedure
-    .experimental_caller(
-        experimental_nextAppDirCaller({
-            pathExtractor: ({ meta }) => (meta as Meta).span,
-        })
-    )
+    .experimental_caller(experimental_nextAppDirCaller({}))
     .use(async opts => {
         const { user, session } = await validateRequest()
         return opts.next({ ctx: { user, session } })

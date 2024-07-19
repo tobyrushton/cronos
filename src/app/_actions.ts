@@ -1,21 +1,12 @@
 'use server'
 
-import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { lucia } from '@/server/auth/lucia'
 import { Argon2id } from 'oslo/password'
 import { cookies } from 'next/headers'
 import { client } from '@/server/db/client'
 import { publicAction, redirect } from '@/server/trpc'
-
-export const logInSchema = z.object({
-    email: z.string().email(),
-    password: z.string(),
-})
-
-export const signUpSchema = logInSchema.extend({
-    name: z.string().max(255),
-})
+import { logInSchema, signUpSchema } from './(auth)/auth.validator'
 
 /*
     temporary fix to allow useActionState to work with trpc
