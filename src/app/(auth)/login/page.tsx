@@ -5,13 +5,24 @@ import Link from 'next/link'
 import { ButtonWithLoading } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { logInWithCredentials, MakeAction } from '../../_actions'
+import { TRPCError } from '@trpc/server'
+import { logInWithCredentials } from '../../_actions'
 
 const Login: FC = () => {
-    const [_, dispatch, isPending] = useActionState(
-        logInWithCredentials as MakeAction<typeof logInWithCredentials>,
-        undefined
-    )
+    const [_, dispatch, isPending] = useActionState<
+        TRPCError | undefined,
+        FormData
+    >(async (__, formData: FormData): Promise<TRPCError | undefined> => {
+        try {
+            await logInWithCredentials({
+                email: formData.get('email') as string,
+                password: formData.get('password') as string,
+            })
+        } catch (e) {
+            return e as TRPCError
+        }
+        return undefined
+    }, undefined)
 
     return (
         <>
